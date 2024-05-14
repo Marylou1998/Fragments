@@ -18,7 +18,6 @@ setInterval(() => {
 const svgWidth = window.innerWidth;
 const svgHeight = window.innerHeight;
 
-// Append the SVG to the body
 const svg = d3.select("body")
     .append("svg")
     .attr("width", svgWidth)
@@ -40,6 +39,50 @@ d3.json("Fragments.json")      //tout le code qui doit être dans le d3.json
 
         var sidePanel = d3.select("body").append("div")
             .attr("class", "sidePanel");   
+
+        var about = d3.select("body").append("div")
+            .attr("class", "about");
+            var textContent = "En savoir plus";
+            about.html(textContent);
+        var aboutOverlay = d3.select("body").append("div")
+            .attr("class", "about-overlay");
+            about.on("click", function() {
+            aboutOverlay.style("display", function() {
+                return aboutOverlay.style("display") === "none" ? "block" : "none";
+            });
+            });
+            var aboutOverlayContent = aboutOverlay.append("div")
+            .attr("class", "overlay-content");
+            aboutOverlayContent.html("Additional information goes here...");
+
+            var Legendes = d3.select("body").append("div")
+            .attr("class", "Legendes"); 
+            var textContent = "<span class=\"lettres-link\" data-content=\"La découverte du manuscrit des <i>Lettres de Mistriss Henley</i> d'Isabelle de Charrière est à l'origine de cette édition numérique. Il a été retrouvé en 2023 aux Archives de l'État de Neuchâtel. Les <i>Lettres</i> ont été publiées en 1784 en réponse au <i>Mari sentimental</i>.\">Manuscrit des <i>Lettres de Mistriss Henley</i></span><br><span class=\"mari-link\" data-content=\"- Un roman de 1783, d'abord publié anonymement, de Samuel Constant de Rebecque.\">Le <i>Mari sentimental</i></span><br><span class=\"justification-link\" data-content=\"Cette oeuvre anonyme a été écrite en réponse aux <i>Lettres de Mistriss Henley</i> en 1785.\">La <i>Justification de M. Henley</i></span><br><span class=\"correspondance-link\" data-content=\"La correspondance d'Isabelle de Charrière contient des lettres écrites et reçues par l'écrivaine, notamment sa correspondance avec Isabelle de Gélieu, sa protégée.\">La correspondance d'Isabelle de Charrière</span><br><span class=\"isabelles-link\" data-content=\"Isabelle de Charrière a poussé Isabelle de Gélieu à écrire <Louise et Albert</i> en réponse à <i>Camilla</i> de Fanny Burney. Ce roman a été publié en 1803.\"><i>Louise et Albert</i></span>";
+            Legendes.html(textContent);
+            Legendes.selectAll("span")
+                .style("color", function() {
+                    return d3.select(this).attr("class") === "lettres-link" ? "#B759E3" :
+                        d3.select(this).attr("class") === "mari-link" ? "#1eaeb8" :
+                        d3.select(this).attr("class") === "justification-link" ? "#1a5678" :
+                        d3.select(this).attr("class") === "correspondance-link" ? "#870E85" :
+                        "#B3BFFF";
+                })
+                .style("text-decoration", "none")
+                .on("mouseover", function() {
+                var content = d3.select(this).attr("data-content");
+                var rect = this.getBoundingClientRect();
+                var x = rect.left + window.scrollX ;
+                var y = rect.top + window.scrollY - 40;
+        
+                d3.select("#tooltip")
+                    .style("left", x + "px")
+                    .style("top", y + "px")
+                    .style("display", "block")
+                    .html(content);
+                })
+                    .on("mouseout", function() {
+                        d3.select("#tooltip").style("display", "none");
+                    });       
 
         const defaultNodeId = 1;
 
@@ -63,7 +106,6 @@ d3.json("Fragments.json")      //tout le code qui doit être dans le d3.json
                 });
             sidePanel.html(`${textWithLinks}`);
             
-  
             sidePanel.selectAll('.node-link').on('click', function(event) {
                 const targetId = d3.select(this).attr('data-target-id');
                 const targetNode = nodes.find(node => node.id === parseInt(targetId));
@@ -75,6 +117,7 @@ d3.json("Fragments.json")      //tout le code qui doit être dans le d3.json
                 }
             sidePanel.node().scrollTop = 0;
             event.preventDefault();
+            
             });
         }}
 
@@ -93,8 +136,8 @@ d3.json("Fragments.json")      //tout le code qui doit être dans le d3.json
         .force("link", d3.forceLink(links).id(d => d.id))
         .force("charge", d3.forceManyBody().strength(-100))
         .force("center", d3.forceCenter(svgWidth / 2, window.innerHeight / 2))
-        .force("x", d3.forceX().strength(0.1).x(d => Math.max(0, Math.min(svgWidth, d.x))))
-        .force("y", d3.forceY().strength(0.1).y(d => Math.max(0, Math.min(window.innerHeight, d.y))))
+        .force("x", d3.forceX().strength(0.01).x(d => Math.max(0, Math.min(svgWidth, d.x))))
+        .force("y", d3.forceY().strength(0.01).y(d => Math.max(0, Math.min(window.innerHeight, d.y))))
         .alpha(1).restart();
     
         const nodeColor = d => colorScale(d.type);
@@ -135,7 +178,6 @@ d3.json("Fragments.json")      //tout le code qui doit être dans le d3.json
             node.append("title")
             .text(d => d.name)
         });
-        
     
         simulation.on("tick", () => {
             link.attr("x1", d => d.source.x)
@@ -147,12 +189,7 @@ d3.json("Fragments.json")      //tout le code qui doit être dans le d3.json
         });
 
         const groupSelect = d3.select("#group-select")
-            .attr("class", "search-bar")    
-            .style("background-color", "#11232E")
-            .style("color", "white")
-            .style("border", "none")
-            .style("height", "3vw")
-            .style("border-radius", "10px");
+            .attr("class", "search-bar");
 
         groupSelect.append("option")
             .attr("value", "") 
@@ -182,14 +219,25 @@ d3.json("Fragments.json")      //tout le code qui doit être dans le d3.json
             }
             node.attr("opacity", d => (selectedGroup === "" || d.group === selectedGroup) ? 1 : 0.2);
             link.attr("opacity", d => (selectedGroup === "" || nodes[d.source.index].group === selectedGroup) ? 0 : 0.2);
-        }
+        
+        node.on("click", (event, d) => {
+            if (d.group === selectedGroup) {
+                // Display node information in overlay
+                showOverlay(d.texte, d.type, {x: event.pageX, y: event.pageY}, d);   
+                d3.select(event.target)
+                .attr("fill", "gray");
+            }
+            
         });
+        }
+
 
         document.addEventListener("click", function(event) {
             if (!event.target.closest("#overlayContent") && !event.target.closest("circle")) {
             hideOverlay();
         }
     });
+});
 
 function playPaper() {
     const music = document.getElementById("paper");
