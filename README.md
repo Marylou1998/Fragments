@@ -3,6 +3,9 @@ Fragments de Mistriss Henley - Édition numérique
 
 Cette édition numérique en visualisation de données a été réalisée dans le cadre du Master de Spécialisation en histoire du livre et édition critique des textes - édition numérique, sous la direction d'Isaac Pante, printemps 2024.
 
+Le lien vers la visualisation : https://maryloug.itch.io/fragments
+Mot de passe : henley
+
 Documentation de D3.js : https://www.d3indepth.com/force-layout/
 
 Le code s'est construit par ces étapes :
